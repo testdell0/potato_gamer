@@ -9,10 +9,7 @@
 <div class="grid two">
   <div class="card">
     <h2>Create a Room</h2>
-    <label for="createName">Your name</label>
-    <input id="createName" type="text" maxlength="20" placeholder="e.g. Alex" autocomplete="off" />
-
-    <label style="margin-top:12px;">Mode</label>
+    <label style="margin-top:4px;">Mode</label>
     <div class="mode-toggle" role="tablist">
       <button type="button" class="mode-option active" data-mode="1v1">
         <span class="mode-title">1 v 1</span>
@@ -23,19 +20,14 @@
         <span class="mode-sub">2–6 players</span>
       </button>
     </div>
-
     <button id="createRoomBtn" class="btn primary block" style="margin-top:14px;">Create Room</button>
     <div id="createResult" class="status"></div>
   </div>
 
   <div class="card">
     <h2>Join a Room</h2>
-    <label for="joinName">Your name</label>
-    <input id="joinName" type="text" maxlength="20" placeholder="e.g. Sam" autocomplete="off" />
-
-    <label for="roomCode" style="margin-top:12px;">Room code</label>
+    <label for="roomCode">Room code</label>
     <input id="roomCode" type="text" maxlength="6" placeholder="6-character code" autocomplete="off" style="text-transform:uppercase;" />
-
     <button id="joinRoomBtn" class="btn success block" style="margin-top:14px;">Join Room</button>
     <div id="joinResult" class="status"></div>
   </div>

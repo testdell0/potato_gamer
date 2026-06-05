@@ -227,14 +227,21 @@ def on_disconnect():
     sid = request.sid
     print(f"Client disconnected: {sid}")
     for room_id, rt in list(rooms_runtime.items()):
-        changed = False
         for pn, s in list(rt['players'].items()):
             if s == sid:
                 rt['players'][pn] = None
-                changed = True
-        if changed:
-            emit('system', {'message': 'A player disconnected.'}, room=room_id)
-            emit('state', public_state(room_id), room=room_id)
+                conn = db_connect()
+                cur = conn.cursor()
+                cur.execute('SELECT name FROM players WHERE room_id=? AND player_num=?', (room_id, pn))
+                nrow = cur.fetchone()
+                cur.execute('SELECT started FROM rooms WHERE room_id=?', (room_id,))
+                rrow = cur.fetchone()
+                conn.close()
+                player_name = nrow['name'] if nrow else f'Player {pn}'
+                msg = (f'{player_name} left the game.'
+                       if (rrow and rrow['started']) else f'{player_name} disconnected.')
+                emit('system', {'message': msg}, room=room_id)
+                emit('state', public_state(room_id), room=room_id)
 
 @socketio.on('create_room')
 def on_create_room(data):
@@ -277,21 +284,22 @@ def on_join_room(data):
     started = rrow['started']
     rt = rooms_runtime.setdefault(room_id, {'players': {}, 'finished': False})
 
-    # Reconnect via token.
+    # Reconnect via token — also update name if the player changed it.
     if token:
         cur.execute('SELECT player_num, name FROM players WHERE room_id=? AND token=?', (room_id, token))
         trow = cur.fetchone()
         if trow:
             pn = trow['player_num']
+            safe_name = clean_name(name, trow['name'])
             rt['players'][pn] = request.sid
             join_room(room_id)
-            cur.execute('UPDATE players SET last_seen=? WHERE room_id=? AND player_num=?',
-                        (datetime.utcnow().isoformat(), room_id, pn))
+            cur.execute('UPDATE players SET last_seen=?, name=? WHERE room_id=? AND player_num=?',
+                        (datetime.utcnow().isoformat(), safe_name, room_id, pn))
             conn.commit()
             conn.close()
-            print(f"Player {pn} rejoined room {room_id}")
-            emit('joined', {'room_id': room_id, 'player': pn, 'token': token, 'name': trow['name']})
-            emit('system', {'message': f'{trow["name"]} rejoined.'}, room=room_id)
+            print(f"{safe_name} rejoined room {room_id} as player {pn}")
+            emit('joined', {'room_id': room_id, 'player': pn, 'token': token, 'name': safe_name})
+            emit('system', {'message': f'{safe_name} rejoined.'}, room=room_id)
             emit('state', public_state(room_id), room=room_id)
             return
 
@@ -331,7 +339,17 @@ def on_leave_room(data):
     if pn is not None:
         rt['players'][pn] = None
         leave_room(room_id)
-        emit('system', {'message': f'Player {pn} left.'}, room=room_id)
+        conn = db_connect()
+        cur = conn.cursor()
+        cur.execute('''SELECT p.name, r.started FROM players p
+                       JOIN rooms r ON r.room_id=p.room_id
+                       WHERE p.room_id=? AND p.player_num=?''', (room_id, pn))
+        row = cur.fetchone()
+        conn.close()
+        player_name = row['name'] if row else f'Player {pn}'
+        msg = (f'{player_name} left the game.'
+               if (row and row['started']) else f'{player_name} left the lobby.')
+        emit('system', {'message': msg}, room=room_id)
         emit('state', public_state(room_id), room=room_id)
 
 @socketio.on('set_secret')
