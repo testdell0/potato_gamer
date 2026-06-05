@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Room {{ room_id }}{% endblock %}
+{% block content %}
+<div class="room-header">
+  <div>
+    <h1>Room <span class="room-code">{{ room_id }}</span></h1>
+    <span id="modeBadge" class="badge">—</span>
+  </div>
+  <div class="room-actions">
+    <div class="pill">⏱ <span id="timerText">00:00</span></div>
+    <button id="newGameBtn" class="btn success" disabled>New Game</button>
+    <button id="exitBtn" class="btn warn">Exit</button>
+  </div>
+</div>
+
+<div id="statusBanner" class="status show">Connecting…</div>
+
+<div id="roomRoot" data-room-id="{{ room_id }}"></div>
+
+<div class="grid two game-grid">
+  <!-- Left: your controls -->
+  <div class="card" id="meCard">
+    <div class="me-head">
+      <h2>You <span id="meName" class="chip">—</span></h2>
+      <span id="meTurnTag" class="badge turn hidden">Your turn</span>
+    </div>
+
+    <div id="secretArea">
+      <label for="secretInput">Set your secret number (1000–9999)</label>
+      <div class="row">
+        <input id="secretInput" type="text" inputmode="numeric" maxlength="4" placeholder="Enter number" />
+        <button id="setSecretBtn" class="btn success">Set</button>
+      </div>
+      <div class="row">
+        <span id="secretDisplay" class="secret-display">—</span>
+        <button id="showHideBtn" class="btn" disabled>Show / Hide</button>
+        <button id="resetSecretBtn" class="btn warn" disabled>Reset</button>
+      </div>
+    </div>
+
+    <hr class="sep" />
+
+    <div id="guessArea">
+      <label for="guessInput">Your guess for <span id="targetLabel" class="chip">your target</span></label>
+      <div class="row">
+        <input id="guessInput" type="text" inputmode="numeric" maxlength="4" placeholder="Enter guess" disabled />
+        <button id="guessBtn" class="btn primary" disabled>Submit Guess</button>
+      </div>
+      <p id="turnHint" class="muted">Waiting for the game to start…</p>
+    </div>
+
+    <div class="row" style="margin-top:14px;">
+      <button id="startBtn" class="btn primary block" disabled>Start Game</button>
+    </div>
+  </div>
+
+  <!-- Right: players + ring -->
+  <div class="card">
+    <h2>Players <span id="playerCount" class="chip">0</span></h2>
+    <p class="muted">Each player guesses the next one in the ring. Last wraps to the first.</p>
+    <div id="playersList" class="players-list"></div>
+  </div>
+</div>
+
+<div class="card" style="margin-top:16px;">
+  <h2>Game Log</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>#</th><th>Player</th><th>Target</th><th>Guess</th><th>Result</th></tr>
+      </thead>
+      <tbody id="historyBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div id="winnerOverlay" class="overlay hidden">
+  <div class="overlay-card">
+    <div class="trophy">🏆</div>
+    <h2 id="winnerText">Winner!</h2>
+    <div class="row" style="justify-content:center;">
+      <button id="overlayNewGame" class="btn success">New Game</button>
+      <button id="overlayExit" class="btn warn">Exit</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js" crossorigin="anonymous"></script>
+<script src="{{ url_for('static', filename='client.js') }}"></script>
+<script src="{{ url_for('static', filename='room.js') }}"></script>
+{% endblock %}

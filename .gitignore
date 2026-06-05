@@ -1,0 +1,12 @@
+# Ignore virtual environment
+.venv/
+
+# Ignore SQLite database file
+game.db
+
+# Optional: Ignore Python cache files
+__pycache__/
+*.pyc
+
+# Optional: Ignore environment files
+.env

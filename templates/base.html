@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}{% endblock %}</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <script>
+      (function () {
+        const saved = localStorage.getItem("theme") || "light";
+        document.documentElement.setAttribute("data-theme", saved);
+      })();
+    </script>
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="header-left"><a class="brand" href="/">4-Digit Game</a></div>
+      <div class="header-right">
+        <button id="themeToggle" class="btn">Toggle Theme</button>
+        <!-- <label class="ui-switch">
+          <input type="checkbox" />
+          <div class="slider">
+            <div class="circle"></div>
+          </div>
+        </label> -->
+      </div>
+    </header>
+    <main class="container">{% block content %}{% endblock %}</main>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        var btn = document.getElementById("themeToggle");
+        btn.addEventListener("click", function () {
+          var current =
+            document.documentElement.getAttribute("data-theme") || "light";
+          var next = current === "light" ? "dark" : "light";
+          document.documentElement.setAttribute("data-theme", next);
+          localStorage.setItem("theme", next);
+        });
+      });
+    </script>
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: potato-gamer
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: DB_PATH
+        value: /data/game.db
+      - key: PORT
+        value: 10000
+    # Uncomment to add $7/month persistent disk (SQLite survives restarts):
+    # disk:
+    #   name: game-data
+    #   mountPath: /data
+    #   sizeGB: 1
