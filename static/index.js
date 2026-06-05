@@ -5,10 +5,8 @@
 
   var createBtn = document.getElementById('createRoomBtn');
   var createResult = document.getElementById('createResult');
-  var createName = document.getElementById('createName');
   var joinBtn = document.getElementById('joinRoomBtn');
   var joinResult = document.getElementById('joinResult');
-  var joinName = document.getElementById('joinName');
   var roomCode = document.getElementById('roomCode');
   var modeOptions = document.querySelectorAll('.mode-option');
 
@@ -26,9 +24,6 @@
   });
 
   createBtn.addEventListener('click', function () {
-    var name = (createName.value || '').trim();
-    if (!name) { show(createResult, 'Enter your name first.'); return; }
-    localStorage.setItem('ng_name', name);
     createBtn.disabled = true;
     socket.emit('create_room', { mode: selectedMode });
   });
@@ -39,11 +34,8 @@
   });
 
   joinBtn.addEventListener('click', function () {
-    var name = (joinName.value || '').trim();
     var code = (roomCode.value || '').trim().toUpperCase();
-    if (!name) { show(joinResult, 'Enter your name first.'); return; }
     if (!code) { show(joinResult, 'Enter a room code.'); return; }
-    localStorage.setItem('ng_name', name);
     window.location.href = '/room/' + code;
   });
 

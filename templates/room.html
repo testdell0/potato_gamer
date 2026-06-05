@@ -1,6 +1,44 @@
 {% extends "base.html" %}
 {% block title %}Room {{ room_id }}{% endblock %}
 {% block content %}
+
+<!-- Name entry overlay — visible by default, dismissed after name submitted -->
+<div id="nameOverlay" class="overlay">
+  <div class="overlay-card">
+    <div style="font-size:2.2rem; margin-bottom:6px;">🎮</div>
+    <h2>Enter your name</h2>
+    <p class="muted" style="margin-bottom:14px; font-size:0.9rem;">Room <strong>{{ room_id }}</strong> — others will see this name.</p>
+    <input id="nameInput" type="text" maxlength="20" placeholder="e.g. Alex" autocomplete="off" />
+    <button id="nameSubmitBtn" class="btn primary block" style="margin-top:10px;">Enter Room</button>
+    <div id="nameError" class="status"></div>
+  </div>
+</div>
+
+<!-- Exit warning -->
+<div id="exitWarningOverlay" class="overlay hidden">
+  <div class="overlay-card">
+    <div style="font-size:2rem; margin-bottom:6px;">🚪</div>
+    <h2>Leave the room?</h2>
+    <p class="muted" style="margin-bottom:4px;">Any in-progress game will continue without you.</p>
+    <div class="row" style="justify-content:center; margin-top:16px; gap:12px;">
+      <button id="confirmExitBtn" class="btn warn">Leave</button>
+      <button id="cancelExitBtn" class="btn">Stay</button>
+    </div>
+  </div>
+</div>
+
+<!-- Winner overlay -->
+<div id="winnerOverlay" class="overlay hidden">
+  <div class="overlay-card">
+    <div class="trophy">🏆</div>
+    <h2 id="winnerText">Winner!</h2>
+    <div class="row" style="justify-content:center; margin-top:16px; gap:12px;">
+      <button id="overlayNewGame" class="btn success">New Game</button>
+      <button id="overlayExit" class="btn warn">Exit</button>
+    </div>
+  </div>
+</div>
+
 <div class="room-header">
   <div>
     <h1>Room <span class="room-code">{{ room_id }}</span></h1>
@@ -13,76 +51,67 @@
   </div>
 </div>
 
-<div id="statusBanner" class="status show">Connecting…</div>
-
+<div id="statusBanner" class="status show">Waiting for name…</div>
 <div id="roomRoot" data-room-id="{{ room_id }}"></div>
 
-<div class="grid two game-grid">
-  <!-- Left: your controls -->
-  <div class="card" id="meCard">
-    <div class="me-head">
-      <h2>You <span id="meName" class="chip">—</span></h2>
-      <span id="meTurnTag" class="badge turn hidden">Your turn</span>
-    </div>
+<div class="room-layout">
 
-    <div id="secretArea">
-      <label for="secretInput">Set your secret number (1000–9999)</label>
-      <div class="row">
-        <input id="secretInput" type="text" inputmode="numeric" maxlength="4" placeholder="Enter number" />
-        <button id="setSecretBtn" class="btn success">Set</button>
+  <!-- Main area -->
+  <div class="main-area">
+
+    <div class="card" id="meCard">
+      <div class="me-head">
+        <h2>You <span id="meName" class="chip">—</span></h2>
+        <span id="meTurnTag" class="badge turn hidden">Your turn</span>
       </div>
-      <div class="row">
-        <span id="secretDisplay" class="secret-display">—</span>
-        <button id="showHideBtn" class="btn" disabled>Show / Hide</button>
-        <button id="resetSecretBtn" class="btn warn" disabled>Reset</button>
+
+      <div id="secretArea" style="margin-top:12px;">
+        <label for="secretInput">Secret number (1000–9999)</label>
+        <div class="secret-row">
+          <div class="input-icon-wrap">
+            <input id="secretInput" type="text" inputmode="numeric" maxlength="4" placeholder="Enter 4-digit number" />
+            <button id="eyeBtn" class="btn-icon hidden" title="Show / hide secret" type="button">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <button id="setSecretBtn" class="btn success">Set</button>
+          <button id="resetSecretBtn" class="btn warn hidden">Reset</button>
+        </div>
+      </div>
+
+      <hr class="sep" />
+
+      <div id="guessArea">
+        <label for="guessInput">Guess for <span id="targetLabel" class="chip">your target</span></label>
+        <div class="guess-inline">
+          <input id="guessInput" type="text" inputmode="numeric" maxlength="4" placeholder="1000–9999" disabled />
+          <button id="guessBtn" class="btn primary" disabled>Submit</button>
+        </div>
+        <p id="turnHint" class="muted" style="margin-top:8px; margin-bottom:0;">Waiting for the game to start…</p>
+      </div>
+
+      <div style="margin-top:14px;">
+        <button id="startBtn" class="btn primary block" disabled>Start Game</button>
       </div>
     </div>
 
-    <hr class="sep" />
+    <!-- Per-player guess history cards -->
+    <div id="guessCardsRow" class="guess-cards-scroll"></div>
 
-    <div id="guessArea">
-      <label for="guessInput">Your guess for <span id="targetLabel" class="chip">your target</span></label>
-      <div class="row">
-        <input id="guessInput" type="text" inputmode="numeric" maxlength="4" placeholder="Enter guess" disabled />
-        <button id="guessBtn" class="btn primary" disabled>Submit Guess</button>
+  </div>
+
+  <!-- Right sidebar -->
+  <div class="sidebar">
+    <div class="card sidebar-card">
+      <div class="sidebar-head">
+        <span class="sidebar-title">Players</span>
+        <span id="playerCount" class="chip">0</span>
       </div>
-      <p id="turnHint" class="muted">Waiting for the game to start…</p>
-    </div>
-
-    <div class="row" style="margin-top:14px;">
-      <button id="startBtn" class="btn primary block" disabled>Start Game</button>
+      <p class="muted" style="font-size:0.78rem; margin:0 0 8px;">Ring: each targets the next player.</p>
+      <div id="playersList" class="players-list-sm"></div>
     </div>
   </div>
 
-  <!-- Right: players + ring -->
-  <div class="card">
-    <h2>Players <span id="playerCount" class="chip">0</span></h2>
-    <p class="muted">Each player guesses the next one in the ring. Last wraps to the first.</p>
-    <div id="playersList" class="players-list"></div>
-  </div>
-</div>
-
-<div class="card" style="margin-top:16px;">
-  <h2>Game Log</h2>
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr><th>#</th><th>Player</th><th>Target</th><th>Guess</th><th>Result</th></tr>
-      </thead>
-      <tbody id="historyBody"></tbody>
-    </table>
-  </div>
-</div>
-
-<div id="winnerOverlay" class="overlay hidden">
-  <div class="overlay-card">
-    <div class="trophy">🏆</div>
-    <h2 id="winnerText">Winner!</h2>
-    <div class="row" style="justify-content:center;">
-      <button id="overlayNewGame" class="btn success">New Game</button>
-      <button id="overlayExit" class="btn warn">Exit</button>
-    </div>
-  </div>
 </div>
 {% endblock %}
 {% block scripts %}
