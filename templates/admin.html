@@ -1,20 +1,21 @@
-
 {% extends "base.html" %}
 {% block title %}Admin{% endblock %}
 {% block content %}
   <h1>Rooms (Admin)</h1>
   <p class="muted">Use <code>/admin?key=YOUR_ADMIN_KEY</code> or header <code>X-Admin-Key</code>.</p>
-  <div class="grid">
+  <div class="grid two">
     {% for r in rows %}
     <div class="card">
-      <h3>{{ r['room_id'] }}</h3>
+      <h3>{{ r['room_id'] }} <span class="badge">{{ r['mode'] }}</span></h3>
       <p class="muted">Created: {{ r['created_at'] }}</p>
-      <p>Status: {{ 'Started' if r['started'] else 'Idle' }}, Turn: {{ r['current_turn'] }}</p>
-      <p>Secrets set: {{ r['secrets_set'] }} | Guesses: {{ r['guesses'] }}</p>
-      <p>Players: {{ r['players'] }}</p>
+      <p>Status:
+        {% if r['winner'] %}Winner: P{{ r['winner'] }}{% elif r['started'] %}Started (Turn P{{ r['current_turn'] }}){% else %}Idle{% endif %}
+      </p>
+      <p>Players: {{ r['player_count'] }}/{{ r['max_players'] }} | Secrets: {{ r['secrets_set'] }} | Guesses: {{ r['guesses'] }}</p>
+      <p class="muted">{{ r['players'] }}</p>
       <div class="row">
-        <a class="btn warn" href="{{ url_for('admin_reset', room_id=r['room_id'], key=request.args.get('key')) }}">Reset Room</a>
-        <a class="btn warn" href="{{ url_for('admin_kill', room_id=r['room_id'], key=request.args.get('key')) }}">Delete Room</a>
+        <a class="btn warn" href="{{ url_for('admin_reset', room_id=r['room_id'], key=request.args.get('key')) }}">Reset</a>
+        <a class="btn warn" href="{{ url_for('admin_kill', room_id=r['room_id'], key=request.args.get('key')) }}">Delete</a>
       </div>
     </div>
     {% endfor %}

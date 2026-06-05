@@ -1,24 +1,47 @@
 {% extends "base.html" %}
-{% block title %}Create or Join Room{% endblock %}
+{% block title %}Create or Join a Room{% endblock %}
 {% block content %}
-<h1>Create or Join a Room</h1>
+<section class="hero">
+  <h1>4-Digit Guess Game</h1>
+  <p class="muted">Pick a secret number. Crack your target's number first to win. Play 1v1 or with up to 6 friends in a ring.</p>
+</section>
+
 <div class="grid two">
   <div class="card">
-    <h2>Create Room</h2>
-    <p class="muted">Share the code with your opponent.</p>
-    <button id="createRoomBtn" class="btn primary">Create Room</button>
+    <h2>Create a Room</h2>
+    <label for="createName">Your name</label>
+    <input id="createName" type="text" maxlength="20" placeholder="e.g. Alex" autocomplete="off" />
+
+    <label style="margin-top:12px;">Mode</label>
+    <div class="mode-toggle" role="tablist">
+      <button type="button" class="mode-option active" data-mode="1v1">
+        <span class="mode-title">1 v 1</span>
+        <span class="mode-sub">2 players</span>
+      </button>
+      <button type="button" class="mode-option" data-mode="multi">
+        <span class="mode-title">Multiplayer</span>
+        <span class="mode-sub">2–6 players</span>
+      </button>
+    </div>
+
+    <button id="createRoomBtn" class="btn primary block" style="margin-top:14px;">Create Room</button>
     <div id="createResult" class="status"></div>
   </div>
+
   <div class="card">
-    <h2>Join Room</h2>
-    <label for="roomCode"></label>
-    <input id="roomCode" type="text" placeholder="Please enter Room Code" />
-    <button id="joinRoomBtn" class="btn success">Join</button>
+    <h2>Join a Room</h2>
+    <label for="joinName">Your name</label>
+    <input id="joinName" type="text" maxlength="20" placeholder="e.g. Sam" autocomplete="off" />
+
+    <label for="roomCode" style="margin-top:12px;">Room code</label>
+    <input id="roomCode" type="text" maxlength="6" placeholder="6-character code" autocomplete="off" style="text-transform:uppercase;" />
+
+    <button id="joinRoomBtn" class="btn success block" style="margin-top:14px;">Join Room</button>
     <div id="joinResult" class="status"></div>
   </div>
 </div>
 {% endblock %}
 {% block scripts %}
-<script src="https://cdn.socket.io/4.7.2/socket.io.min.js" crossorigin="anonymous" defer></script>
-<script src="{{ url_for('static', filename='index.js') }}" defer></script>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js" crossorigin="anonymous"></script>
+<script src="{{ url_for('static', filename='index.js') }}"></script>
 {% endblock %}
