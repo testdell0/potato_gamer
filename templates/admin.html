@@ -1,0 +1,22 @@
+
+{% extends "base.html" %}
+{% block title %}Admin{% endblock %}
+{% block content %}
+  <h1>Rooms (Admin)</h1>
+  <p class="muted">Use <code>/admin?key=YOUR_ADMIN_KEY</code> or header <code>X-Admin-Key</code>.</p>
+  <div class="grid">
+    {% for r in rows %}
+    <div class="card">
+      <h3>{{ r['room_id'] }}</h3>
+      <p class="muted">Created: {{ r['created_at'] }}</p>
+      <p>Status: {{ 'Started' if r['started'] else 'Idle' }}, Turn: {{ r['current_turn'] }}</p>
+      <p>Secrets set: {{ r['secrets_set'] }} | Guesses: {{ r['guesses'] }}</p>
+      <p>Players: {{ r['players'] }}</p>
+      <div class="row">
+        <a class="btn warn" href="{{ url_for('admin_reset', room_id=r['room_id'], key=request.args.get('key')) }}">Reset Room</a>
+        <a class="btn warn" href="{{ url_for('admin_kill', room_id=r['room_id'], key=request.args.get('key')) }}">Delete Room</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+{% endblock %}

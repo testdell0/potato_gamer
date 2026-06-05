@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Room {{ room_id }}{% endblock %}
+{% block content %}
+<div class="room-header">
+  <h1>Room {{ room_id }}</h1>
+  <div class="room-actions">
+    <button id="exitBtn" class="btn warn">Exit</button>
+    <button id="newGameBtn" class="btn success" disabled>New Game</button>
+    <div class="timer pill">⏱ <span id="timerText">00:00</span></div>
+  </div>
+</div>
+<div id="statusBanner" class="status">Connecting...</div>
+<div id="roomRoot" data-room-id="{{ room_id }}"></div>
+
+<div class="grid two">
+  <div class="card" id="p1Card">
+    <h2>Player 1</h2>
+    <label for="p1Secret">Set your number (1000–9999)</label>
+    <div class="row">
+      <input id="p1Secret" type="text" inputmode="numeric" maxlength="4" placeholder="Enter number" />
+      <button id="p1Set" class="btn success">Set</button>
+      <button id="p1ShowHide" class="btn">Show / Hide</button>
+      <button id="p1ResetSecret" class="btn warn" disabled>Reset Secret</button>
+      <span id="p1SecretDisplay" class="secret-display">—</span>
+    </div>
+  </div>
+
+  <div class="card" id="p2Card">
+    <h2>Player 2</h2>
+    <label for="p2Secret">Set your number (1000–9999)</label>
+    <div class="row">
+      <input id="p2Secret" type="text" inputmode="numeric" maxlength="4" placeholder="Enter number" />
+      <button id="p2Set" class="btn success">Set</button>
+      <button id="p2ShowHide" class="btn">Show / Hide</button>
+      <button id="p2ResetSecret" class="btn warn" disabled>Reset Secret</button>
+      <span id="p2SecretDisplay" class="secret-display">—</span>
+    </div>
+  </div>
+</div>
+
+<div class="row" style="margin-top: 16px;">
+  <button id="startBtn" class="btn primary" disabled>Start Game</button>
+</div>
+
+<div class="grid two" style="margin-top: 16px;">
+  <div class="card" id="p1GuessCard">
+    <h2>Player 1 Guess</h2>
+    <label for="p1Guess">Your guess (1000–9999)</label>
+    <div class="row">
+      <input id="p1Guess" type="text" inputmode="numeric" maxlength="4" placeholder="Enter guess" />
+      <button id="p1Submit" class="btn primary">Submit Guess</button>
+    </div>
+    <h3 style="margin-top: 12px;">Player 1 Guess History</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Guess</th>
+          <th>Outcome</th>
+        </tr>
+      </thead>
+      <tbody id="p1History"></tbody>
+    </table>
+  </div>
+
+  <div class="card" id="p2GuessCard">
+    <h2>Player 2 Guess</h2>
+    <label for="p2Guess">Your guess (1000–9999)</label>
+    <div class="row">
+      <input id="p2Guess" type="text" inputmode="numeric" maxlength="4" placeholder="Enter guess" />
+      <button id="p2Submit" class="btn primary">Submit Guess</button>
+    </div>
+    <h3 style="margin-top: 12px;">Player 2 Guess History</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Guess</th>
+          <th>Outcome</th>
+        </tr>
+      </thead>
+      <tbody id="p2History"></tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js" crossorigin="anonymous"></script>
+<script src="{{ url_for('static', filename='client.js') }}"></script>
+<script src="{{ url_for('static', filename='room.js') }}"></script>
+{% endblock %}

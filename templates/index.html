@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Create or Join Room{% endblock %}
+{% block content %}
+<h1>Create or Join a Room</h1>
+<div class="grid two">
+  <div class="card">
+    <h2>Create Room</h2>
+    <p class="muted">Share the code with your opponent.</p>
+    <button id="createRoomBtn" class="btn primary">Create Room</button>
+    <div id="createResult" class="status"></div>
+  </div>
+  <div class="card">
+    <h2>Join Room</h2>
+    <label for="roomCode"></label>
+    <input id="roomCode" type="text" placeholder="Please enter Room Code" />
+    <button id="joinRoomBtn" class="btn success">Join</button>
+    <div id="joinResult" class="status"></div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js" crossorigin="anonymous" defer></script>
+<script src="{{ url_for('static', filename='index.js') }}" defer></script>
+{% endblock %}
